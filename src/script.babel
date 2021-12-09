@@ -1,0 +1,218 @@
+const audio = document.getElementById("beep")
+
+class Pomodoro extends React.Component {
+    state = {
+        breakCount: 5,
+        sessionCount: 25,
+        clockCount: 25*60,
+        currentTimer: "Session",
+        isTimerOn: false,
+    }
+
+    constructor(props) {
+        super(props)
+        this.loop = undefined;
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.loop)
+    }
+
+    handlePlayPause = () => {
+        const {isTimerOn} = this.state;
+        if(isTimerOn){
+            clearInterval(this.loop)
+            this.setState({
+                isTimerOn: false
+            })
+        }else{
+            this.setState({
+                isTimerOn: true
+            })
+            this.loop = setInterval(() => {
+                const {clockCount, 
+                    currentTimer, 
+                    breakCount, 
+                    sessionCount} = this.state
+
+                if(clockCount === 0) {
+                    this.setState({
+                        currentTimer: (currentTimer === "Session") ? "Break" : "Session",
+                        clockCount: (currentTimer === "Session") ? (breakCount*60): (sessionCount*60)
+                    })
+                    audio.play()
+                }else{
+                    this.setState({
+                        clockCount: clockCount-1
+                    })
+                }
+            }, 1000)
+        }
+    }
+
+    handleReset = () => {
+        this.setState({
+        breakCount: 5,
+        sessionCount: 25,
+        clockCount: 25*60,
+        currentTimer: "Session",
+        isTimerOn: false,
+        })
+
+        clearInterval(this.loop)
+
+        audio.pause()
+        audio.currentTime = 0
+        
+    }
+
+
+    formatTime = (count) => {
+        let minutes = Math.floor(count/60)
+        let seconds = count % 60 < 10? "0"+ count % 60: count % 60
+
+        minutes = minutes < 10 ? ("0"+minutes): minutes
+        return `${minutes}:${seconds}`
+    }
+
+    // clean up this code
+    handleBreakDecrease = () => {
+        const {breakCount, isTimerOn,currentTimer} = this.state
+
+        if(breakCount > 1){
+        if(!isTimerOn && currentTimer === "Break"){
+            this.setState({
+                breakCount: breakCount-1,
+                clockCount: (breakCount-1)*60,
+            })
+        }else{
+            this.setState({
+                breakCount: breakCount-1
+            })
+        
+        }
+        }
+    }
+    handleBreakIncrease = () => {
+        const {breakCount, isTimerOn,currentTimer} = this.state
+
+        if(breakCount <60){
+            if(!isTimerOn && currentTimer === "Break"){
+                this.setState({
+                    breakCount: breakCount+1,
+                    clockCount: (breakCount+1)*60,
+                })
+            }else{
+                this.setState({
+                    breakCount: breakCount+1
+                })
+            
+            }
+            }
+    }
+    
+    handleSessionDecrease = () => {
+        const {sessionCount,isTimerOn, currentTimer} = this.state
+
+        if(sessionCount > 1){
+            if(!isTimerOn && currentTimer === "Session"){
+                this.setState({
+                    sessionCount: sessionCount-1,
+                    clockCount: (sessionCount-1)*60,
+                })
+            }else{
+                this.setState({
+                    sessionCount: sessionCount-1
+                })
+            
+            }
+            }
+    }
+
+    handleSessionIncrease = () => {
+        const {sessionCount, isTimerOn, currentTimer} = this.state
+
+        if(sessionCount <60){
+            if(!isTimerOn && currentTimer === "Session"){
+                this.setState({
+                    sessionCount: sessionCount+1,
+                    clockCount: (sessionCount+1)*60,
+                })
+            }else{
+                this.setState({
+                    sessionCount: sessionCount+1
+                })
+            
+            }
+            }
+    }
+
+    render(){
+        const {breakCount, 
+            sessionCount, 
+            clockCount, 
+            currentTimer
+        } = this.state;
+
+        const breakProps = {
+            title: "Break",
+            count: breakCount,
+            handleDecrease: this.handleBreakDecrease,
+            handleIncrease: this.handleBreakIncrease
+
+        }
+        const sessionProps = {
+            title: "Session",
+            count: sessionCount,
+            handleDecrease: this.handleSessionDecrease,
+            handleIncrease: this.handleSessionIncrease
+
+        }
+        const {isTimerOn} = this.state
+        return (
+        <div>
+            <div className="flex">
+            <SetTimer {...breakProps} />
+            <SetTimer {...sessionProps} />    
+            </div>
+            <div className="clock-container">
+                <h1 id="timer-label">{currentTimer}</h1>
+                <span id="time-left">{this.formatTime(clockCount)}</span>
+                
+                <div className="flex">
+                <button id="start_stop" className="btn-large cyan" onClick={this.handlePlayPause}>
+        {isTimerOn 
+          ?<i className="material-icons">pause_circle_outline</i> 
+          :<i className="material-icons">play_circle_outline</i>}
+      </button>
+                
+                <button id="reset" className="btn-large cyan" onClick={this.handleReset}>
+        <i className="material-icons">autorenew</i>
+      </button>
+                </div>
+            </div>
+        </div>
+        )
+    }
+    
+}
+
+const SetTimer = (props) => {
+    const id = props.title.toLowerCase()
+    return (
+        <div className="timer-container">
+            <h2 id={`${id}-label`}>{props.title} Length</h2>
+            <div className="flex action-wrapper">
+                <button id={`${id}-decrement`} className="btn-small cyan" onClick={props.handleDecrease}>
+                  <i className = "material-icons">arrow_downward</i>
+                </button>
+                <span id={`${id}-length`}>{props.count}</span>
+                <button id={`${id}-increment`} className="btn-small cyan" onClick={props.handleIncrease}>
+                  <i className = "material-icons">arrow_upward</i>
+                </button>
+            </div> 
+        </div>
+    )
+}
+
+ReactDOM.render(<Pomodoro />, document.getElementById('app'));

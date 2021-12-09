@@ -1,0 +1,52 @@
+body{
+    background-color: #7ed6df;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 100vh;
+}
+
+button{
+    font-size: 20px;
+    cursor: pointer;
+    padding: 10px 10px;
+    margin: 10px;
+}
+
+.flex {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.timer-container {
+    margin: 20px;
+}
+
+.timer-container h2{
+    margin: 0;
+}
+
+.action-wrapper span{
+    font-size: 40px;
+    margin: 0 10px;
+    width: 50px;
+}
+
+.clock-container {
+    border: 5px solid #333;
+    display: inline-block;
+    padding: 10px;
+    border-radius: 10px;
+    margin-top: 20px;
+    width: 300px;
+}
+
+.clock-container span {
+    font-size: 50px;
+}
+
+.clock-container h1 {
+    margin: 0;
+}
